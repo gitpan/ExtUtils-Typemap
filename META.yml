@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               ExtUtils-Typemap
-version:            0.01
+version:            0.02
 abstract:           Read/Write/Modify Perl/XS typemap files
 author:
     - Steffen Mueller <smueller@cpan.org>
@@ -11,6 +11,8 @@ configure_requires:
 build_requires:
     ExtUtils::MakeMaker:  0
 requires:
+    File::Spec:  0
+    File::Temp:  0
     Test::More:  0.44
 no_index:
     directory:

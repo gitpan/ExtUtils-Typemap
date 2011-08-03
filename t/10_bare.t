@@ -2,8 +2,22 @@
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More tests => 29;
 use ExtUtils::Typemap;
+
+sub _isa_any_ok {
+  my $obj = shift;
+  my @classes = @_;
+  my $ok = 0;
+  foreach (@classes) {
+    $ok = 1 if $obj->isa($_);
+  }
+  ok($ok, "Object isa_any '".join("', '", @classes)."'");
+  if (not $ok) {
+    diag("Object isa '" . ref($obj) . "', not any of '".join("', '", @classes)."'");
+  }
+  return $ok;
+}
 
 # typemap only
 SCOPE: {
@@ -13,6 +27,12 @@ SCOPE: {
 TYPEMAP
 unsigned int	T_IV
 HERE
+
+  my $type = $map->get_typemap(ctype => 'unsigned int');
+  _isa_any_ok($type, 'ExtUtils::Typemap::Type', 'ExtUtils::Typemaps::Type');
+  is($type->ctype, 'unsigned int');
+  is($type->xstype, 'T_IV');
+  is($type->tidy_ctype, 'unsigned int');
 }
 
 # typemap & input
@@ -28,6 +48,16 @@ INPUT
 T_UV
 	$var = ($type)SvUV($arg);
 HERE
+
+  my $type = $map->get_typemap(ctype => 'unsigned int');
+  _isa_any_ok($type, 'ExtUtils::Typemap::Type', 'ExtUtils::Typemaps::Type');
+  is($type->ctype, 'unsigned int');
+  is($type->xstype, 'T_UV');
+  is($type->tidy_ctype, 'unsigned int');
+
+  my $in = $map->get_inputmap(xstype => 'T_UV');
+  _isa_any_ok($in, 'ExtUtils::Typemap::InputMap', 'ExtUtils::Typemaps::InputMap');
+  is($in->xstype, 'T_UV');
 }
 
 
@@ -44,6 +74,16 @@ OUTPUT
 T_UV
 	sv_setuv($arg, (UV)$var);
 HERE
+
+  my $type = $map->get_typemap(ctype => 'unsigned int');
+  _isa_any_ok($type, 'ExtUtils::Typemap::Type', 'ExtUtils::Typemaps::Type');
+  is($type->ctype, 'unsigned int');
+  is($type->xstype, 'T_UV');
+  is($type->tidy_ctype, 'unsigned int');
+
+  my $in = $map->get_outputmap(xstype => 'T_UV');
+  _isa_any_ok($in, 'ExtUtils::Typemap::OutputMap', 'ExtUtils::Typemaps::OutputMap');
+  is($in->xstype, 'T_UV');
 }
 
 # typemap & input & output
@@ -93,5 +133,17 @@ T_UV
 T_IV
 	sv_setiv($arg, (IV)$var);
 HERE
+  my $type = $map->get_typemap(ctype => 'unsigned int');
+  _isa_any_ok($type, 'ExtUtils::Typemap::Type', 'ExtUtils::Typemaps::Type');
+  is($type->ctype, 'unsigned int');
+  is($type->xstype, 'T_UV');
+  is($type->tidy_ctype, 'unsigned int');
+
+  my $in = $map->get_outputmap(xstype => 'T_UV');
+  _isa_any_ok($in, 'ExtUtils::Typemap::OutputMap', 'ExtUtils::Typemaps::OutputMap');
+  is($in->xstype, 'T_UV');
+  $in = $map->get_outputmap(xstype => 'T_IV');
+  _isa_any_ok($in, 'ExtUtils::Typemap::OutputMap', 'ExtUtils::Typemaps::OutputMap');
+  is($in->xstype, 'T_IV');
 }
 
